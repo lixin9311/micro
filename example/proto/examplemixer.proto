@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "github.com/lixin9311/micro/example/proto";
+
+import "validate/validate.proto";
+import "google/api/annotations.proto";
+
+service Greeter {
+  rpc Hello(HelloReq) returns (HelloResp) {
+    option (google.api.http) = {
+      post: "/v1/hello"
+      body: "*"
+    };
+  };
+}
+
+/////////////// Request and Response ///////////////
+
+message HelloReq {
+  string message = 1 [(validate.rules).string.min_len = 1];
+}
+
+message HelloResp {
+  option (validate.ignored) = true;
+  string message = 1;
+}
