@@ -33,7 +33,7 @@ type Config struct {
 var DefaultConfig = wrappedCfg{
 	Grpc: Config{
 		ListenAddr:    "0.0.0.0",
-		ListenPort:    utils.GetDefaultPort("grpc", 4000),
+		ListenPort:    4000,
 		LogAllRequest: true,
 	},
 }
@@ -47,6 +47,7 @@ func ReadConfig(v *viper.Viper) (Config, error) {
 	if err := v.Unmarshal(&cfg); err != nil {
 		return Config{}, err
 	}
+	cfg.Grpc.ListenPort = utils.GetDefaultPort("grpc", cfg.Grpc.ListenPort)
 	return cfg.Grpc, nil
 }
 

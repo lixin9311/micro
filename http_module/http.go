@@ -46,7 +46,7 @@ type CorsSetting struct {
 var DefaultConfig = wrappedCfg{
 	Http: Config{
 		ListenAddr:    "0.0.0.0",
-		ListenPort:    utils.GetDefaultPort("http", 3000),
+		ListenPort:    3000,
 		LogAllRequest: true,
 		CORS: CorsSetting{
 			AllowOrigins: []string{"*"},
@@ -64,6 +64,7 @@ func ReadConfig(v *viper.Viper) (Config, error) {
 	if err := v.Unmarshal(&cfg); err != nil {
 		return Config{}, err
 	}
+	cfg.Http.ListenPort = utils.GetDefaultPort("http", cfg.Http.ListenPort)
 	return cfg.Http, nil
 }
 
