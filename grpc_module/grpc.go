@@ -62,19 +62,19 @@ func Module() fx.Option {
 			ReadConfig,
 			NewGRPCServer,
 		),
-		trace_module.WithOpencensusViews(
-			ocgrpc.DefaultServerViews...,
-		),
-		trace_module.WithOpencensusViews(
-			ocgrpc.DefaultClientViews...,
-		),
-		trace_module.WithOpencensusViews(
-			ocgrpc.ServerReceivedMessagesPerRPCView,
-			ocgrpc.ServerSentMessagesPerRPCView,
-			ocgrpc.ClientSentMessagesPerRPCView,
-			ocgrpc.ClientReceivedMessagesPerRPCView,
-			ocgrpc.ClientServerLatencyView,
-		),
+		// trace_module.WithOpencensusViews(
+		// 	ocgrpc.DefaultServerViews...,
+		// ),
+		// trace_module.WithOpencensusViews(
+		// 	ocgrpc.DefaultClientViews...,
+		// ),
+		// trace_module.WithOpencensusViews(
+		// 	ocgrpc.ServerReceivedMessagesPerRPCView,
+		// 	ocgrpc.ServerSentMessagesPerRPCView,
+		// 	ocgrpc.ClientSentMessagesPerRPCView,
+		// 	ocgrpc.ClientReceivedMessagesPerRPCView,
+		// 	ocgrpc.ClientServerLatencyView,
+		// ),
 		fx.Invoke(
 			CheckConfig,
 		),

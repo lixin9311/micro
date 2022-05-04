@@ -72,7 +72,7 @@ func NewTraceExporter(ctx context.Context, lc fx.Lifecycle, cfg Config, logger *
 			ProjectID:         projectID,
 			OnError:           func(err error) { logger.Error("failed to export to stackdriver", zap.Error(err)) },
 			MetricPrefix:      svcCfg.GetDomain(),
-			ReportingInterval: 90 * time.Second,
+			ReportingInterval: 900 * time.Second,
 			Context:           ctx,
 		})
 		if err != nil {
