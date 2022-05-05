@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -12,6 +13,7 @@ import (
 	grpc_validator "github.com/lixin9311/micro/grpc_middleware/grpc_validator"
 	grpc_zap "github.com/lixin9311/micro/grpc_middleware/grpc_zap"
 	request_id "github.com/lixin9311/micro/grpc_middleware/requestid"
+	"github.com/lixin9311/micro/http_module"
 	"github.com/lixin9311/micro/svc_module"
 	"github.com/lixin9311/micro/trace_module"
 	"github.com/lixin9311/micro/utils"
@@ -107,7 +109,7 @@ type optionalParams struct {
 	TraceCfg         trace_module.Config     `optional:"true"`
 }
 
-func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig, svOpts grpcServerOptionsParams, logger *zap.Logger, ocfg optionalParams) *grpc.Server {
+func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig, svOpts grpcServerOptionsParams, logger *zap.Logger, ocfg optionalParams) (*grpc.Server, http_module.HttpOptions) {
 	ints := []grpc.UnaryServerInterceptor{
 		// insert request id
 		request_id.UnaryServerInterceptor(),
@@ -149,6 +151,7 @@ func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig
 					logger.Panic("error during serving GRPC", zap.Error(err))
 				}
 			}()
+			time.Sleep(time.Millisecond * 100)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
@@ -158,7 +161,7 @@ func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig
 		},
 	})
 
-	return srv
+	return srv, http_module.BeforeHttp()
 }
 
 func MustDial(addr string, opts ...grpc.DialOption) *grpc.ClientConn {

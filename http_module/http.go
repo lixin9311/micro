@@ -25,10 +25,25 @@ import (
 	"go.uber.org/zap"
 )
 
+type beforeHttp struct{}
+
 type optionalParams struct {
 	fx.In
 
 	TraceCfg trace_module.Config `optional:"true"`
+	Before   []beforeHttp        `group:"before_http"`
+}
+
+type HttpOptions struct {
+	fx.Out
+
+	Before []beforeHttp `group:"before_http,flatten"`
+}
+
+func BeforeHttp() HttpOptions {
+	return HttpOptions{
+		Before: []beforeHttp{{}},
+	}
 }
 
 type Config struct {
