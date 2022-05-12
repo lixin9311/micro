@@ -143,7 +143,7 @@ func newLogger(lc fx.Lifecycle, cfg Config, serviceParams svc_module.OptionalCon
 
 	lc.Append(fx.Hook{
 		OnStop: func(ctx context.Context) error {
-			logger.Info("Syncing logger")
+			logger.Debug("Syncing logger")
 			err := logger.Sync()
 			// https://github.com/uber-go/zap/issues/772
 			if strings.Contains(err.Error(), "/dev/stdout") || strings.Contains(err.Error(), "/dev/stderr") {
