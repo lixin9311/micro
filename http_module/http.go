@@ -135,16 +135,16 @@ func NewEcho(
 	}
 
 	e.Use(
-		// panic
-		middleware.RecoverWithConfig(middleware.RecoverConfig{
-			LogLevel: log.OFF + 1,
-		}),
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowCredentials: true,
 			AllowOrigins:     cfg.CORS.AllowOrigins,
 			AllowHeaders:     cfg.CORS.AllowHeaders,
 		}),
 		http_middleware.EchoRequestID(),
+		http_middleware.EchoRequestLogger(
+			logger,
+			http_middleware.WithLogBody(cfg.LogAllRequest),
+		),
 	)
 
 	if ocfg.TraceCfg.Fraction > 0 && ocfg.TraceCfg.Driver != "none" && ocfg.TraceCfg.Driver != "" {
@@ -163,13 +163,6 @@ func NewEcho(
 			),
 		)
 	}
-
-	e.Use(
-		http_middleware.EchoRequestLogger(
-			logger,
-			http_middleware.WithLogBody(cfg.LogAllRequest),
-		),
-	)
 
 	p := prometheus.NewPrometheus(service, func(c echo.Context) bool {
 		switch c.Request().RequestURI {

@@ -2,6 +2,7 @@ package http_middleware
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -62,6 +63,31 @@ func WrapMiddleware(m echo.MiddlewareFunc, opts ...LogOption) echo.MiddlewareFun
 	}
 }
 
+func recoverFunc(l *zap.Logger, c echo.Context) {
+	uri := c.Request().RequestURI
+	ctx := c.Request().Context()
+	reqBody := []byte{}
+	if c.Request().Body != nil { // Read
+		reqBody, _ = ioutil.ReadAll(c.Request().Body)
+	}
+	c.Request().Body = ioutil.NopCloser(bytes.NewBuffer(reqBody)) // Reset
+	if len(reqBody) > 1024 {
+		reqBody = reqBody[:1024]
+	}
+	if len(uri) > 200 {
+		uri = uri[:200]
+	}
+	if r := recover(); r != nil {
+		err, ok := r.(error)
+		if !ok {
+			err = fmt.Errorf("%v", r)
+		}
+		l.Error("[PANIC RECOVER]: "+uri, zap.Error(err), zap.Stack("stack_trace"),
+			zapx.Context(ctx), zapx.Metadata(ctx), zap.String("http.body", string(reqBody)))
+		c.Error(err)
+	}
+}
+
 func EchoRequestLogger(logger *zap.Logger, opts ...LogOption) echo.MiddlewareFunc {
 	o := &options{
 		filters:      []RequestFilter{ExcludeURLs(defaultSkippedURLs...)},
@@ -74,6 +100,7 @@ func EchoRequestLogger(logger *zap.Logger, opts ...LogOption) echo.MiddlewareFun
 	if o.logBody {
 		return func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
+				defer recoverFunc(logger, c)
 				for _, f := range o.filters {
 					if !f(c.Request().RequestURI) {
 						return next(c)
@@ -142,6 +169,7 @@ func EchoRequestLogger(logger *zap.Logger, opts ...LogOption) echo.MiddlewareFun
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			defer recoverFunc(logger, c)
 			for _, f := range o.filters {
 				if !f(c.Request().RequestURI) {
 					return next(c)
