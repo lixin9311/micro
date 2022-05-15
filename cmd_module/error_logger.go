@@ -6,10 +6,13 @@ import (
 	"os"
 	"strings"
 
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
+	"go.uber.org/zap"
 )
 
+// Will provide fxevent logger and a zap logger.
 func Module(verbose bool) fx.Option {
 	return fx.Options(
 		fx.WithLogger(func() fxevent.Logger {
@@ -18,7 +21,20 @@ func Module(verbose bool) fx.Option {
 				verbose: verbose,
 			}
 		}),
+
+		fx.Provide(func() (*zap.Logger, error) {
+			lvl := zap.InfoLevel
+			if verbose {
+				lvl = zap.DebugLevel
+			}
+			zapcfg := zap.NewDevelopmentConfig()
+			zapcfg.Level = zap.NewAtomicLevelAt(lvl)
+			logger, err := zapcfg.Build()
+			grpc_zap.ReplaceGrpcLoggerV2(zap.NewNop())
+			return logger, err
+		}),
 	)
+
 }
 
 // consoleLogger is an Fx event logger that attempts to write human-readable
