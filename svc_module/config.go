@@ -1,6 +1,8 @@
 package svc_module
 
 import (
+	"os"
+
 	"go.uber.org/fx"
 )
 
@@ -38,6 +40,9 @@ func (cfg OptionalConfig) GetDomain() string {
 }
 
 func Module(service, domain string) fx.Option {
+	if env := os.Getenv("SERVICE_NAME"); env != "" {
+		service = env
+	}
 	return fx.Options(
 		fx.Supply(
 			Service(service),
