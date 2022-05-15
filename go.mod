@@ -12,7 +12,7 @@ require (
 	github.com/labstack/echo-contrib v0.11.0
 	github.com/labstack/echo/v4 v4.6.3
 	github.com/labstack/gommon v0.3.1
-	github.com/lixin9311/zapx v0.1.7
+	github.com/lixin9311/zapx v0.1.8
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/segmentio/ksuid v1.0.4
 	github.com/spf13/viper v1.10.1
