@@ -392,8 +392,8 @@ github.com/lightstep/lightstep-tracer-common/golang/gogo v0.0.0-20190605223551-b
 github.com/lightstep/lightstep-tracer-go v0.18.1/go.mod h1:jlF1pusYV4pidLvZ+XD0UBX0ZE6WURAspgAczcDHrL4=
 github.com/lixin9311/backoff/v2 v2.0.0 h1:GhBn8l5mVqXfNfPzpy5Tg99JMBRtvuS6kxNAKOx7C/U=
 github.com/lixin9311/backoff/v2 v2.0.0/go.mod h1:2ytHptHsZaGHKGCmAUY6IZjzClO8rnEKVhUSLhAzqOc=
-github.com/lixin9311/zapx v0.1.5 h1:ekmuO8ZG/lULETgZrItQq4CvBOAQjljKRjJdN7zbBy4=
-github.com/lixin9311/zapx v0.1.5/go.mod h1:/nBHx1I7wovwBuLYruv0XfUZYhWfrYUCNYWg/11KFUE=
+github.com/lixin9311/zapx v0.1.6 h1:Jy4EZWDiSdrFBymA6JL8fwfDkZoqNUx1GDk0DGoZzF0=
+github.com/lixin9311/zapx v0.1.6/go.mod h1:/nBHx1I7wovwBuLYruv0XfUZYhWfrYUCNYWg/11KFUE=
 github.com/lyft/protoc-gen-star v0.5.3/go.mod h1:V0xaHgaf5oCCqmcxYcWiDfTiKsZsRc87/1qhoTACD8w=
 github.com/lyft/protoc-gen-validate v0.0.13/go.mod h1:XbGvPuh87YZc5TdIa2/I4pLk0QoUACkjt2znoq26NVQ=
 github.com/magiconair/properties v1.8.5 h1:b6kJs+EmPFMYGkow9GiUyCyOvIwYetYJ3fSaWak/Gls=

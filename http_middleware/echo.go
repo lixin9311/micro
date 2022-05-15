@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -82,7 +83,7 @@ func recoverFunc(l *zap.Logger, c echo.Context) {
 		if !ok {
 			err = fmt.Errorf("%v", r)
 		}
-		l.Error("[PANIC RECOVER]: "+uri, zap.Error(err), zap.Stack("stack_trace"),
+		l.Error("[PANIC RECOVER]: "+uri, zap.Error(err), zap.String("stack_trace", string(debug.Stack())),
 			zapx.Context(ctx), zapx.Metadata(ctx), zap.String("http.body", string(reqBody)))
 		c.Error(err)
 	}
