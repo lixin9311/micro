@@ -12,14 +12,14 @@ require (
 	github.com/labstack/echo-contrib v0.11.0
 	github.com/labstack/echo/v4 v4.6.3
 	github.com/labstack/gommon v0.3.1
-	github.com/lixin9311/zapx v0.1.8
+	github.com/lixin9311/zapx v0.1.9
 	github.com/mitchellh/mapstructure v1.4.3
 	github.com/segmentio/ksuid v1.0.4
 	github.com/spf13/viper v1.10.1
 	go.opencensus.io v0.23.0
 	go.uber.org/fx v1.16.0
 	go.uber.org/zap v1.21.0
-	google.golang.org/genproto v0.0.0-20220505152158-f39f71e6c8f3
+	google.golang.org/genproto v0.0.0-20220519153652-3a47de7e79bd
 	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.28.0
 )
@@ -69,10 +69,10 @@ require (
 	go.uber.org/dig v1.12.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/net v0.0.0-20220513224357-95641704303c // indirect
+	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
-	golang.org/x/sys v0.0.0-20220513210249-45d2b4557a2a // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	google.golang.org/api v0.63.0 // indirect
