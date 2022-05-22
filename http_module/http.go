@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -19,6 +20,7 @@ import (
 	"github.com/lixin9311/micro/utils"
 	"github.com/lixin9311/micro/version"
 	"github.com/spf13/viper"
+	"go.opencensus.io/exporter/stackdriver/propagation"
 	"go.opencensus.io/plugin/ochttp"
 	"go.opencensus.io/trace"
 	"go.uber.org/fx"
@@ -147,17 +149,18 @@ func NewEcho(
 		),
 	)
 
-	if ocfg.TraceCfg.Fraction > 0 && ocfg.TraceCfg.Driver != "none" && ocfg.TraceCfg.Driver != "" {
+	if ocfg.TraceCfg.Driver != "none" {
 		e.Use(
 			http_middleware.WrapMiddleware(
 				echo.WrapMiddleware(func(h http.Handler) http.Handler {
 					return &ochttp.Handler{
-						Handler: h,
+						Propagation: &propagation.HTTPFormat{},
+						Handler:     h,
 						StartOptions: trace.StartOptions{
 							Sampler:  trace.ProbabilitySampler(ocfg.TraceCfg.Fraction),
 							SpanKind: trace.SpanKindServer,
 						},
-						IsPublicEndpoint: true,
+						IsPublicEndpoint: os.Getenv("K_SERVICE") != "",
 					}
 				}),
 			),
