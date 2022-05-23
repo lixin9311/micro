@@ -137,6 +137,12 @@ func NewEcho(
 	}
 
 	e.Use(
+		func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				c.Response().Header().Set("Vary", "Authorization")
+				return next(c)
+			}
+		},
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowCredentials: true,
 			AllowOrigins:     cfg.CORS.AllowOrigins,
