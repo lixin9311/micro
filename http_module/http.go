@@ -25,6 +25,7 @@ import (
 	"go.opencensus.io/trace"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"golang.org/x/net/http2"
 )
 
 type beforeHttp struct{}
@@ -32,6 +33,7 @@ type beforeHttp struct{}
 type optionalParams struct {
 	fx.In
 
+	H2c      *http2.Server       `optional:"true"`
 	TraceCfg trace_module.Config `optional:"true"`
 	Before   []beforeHttp        `group:"before_http"`
 }
@@ -137,12 +139,6 @@ func NewEcho(
 	}
 
 	e.Use(
-		func(next echo.HandlerFunc) echo.HandlerFunc {
-			return func(c echo.Context) error {
-				c.Response().Header().Set("Vary", "Authorization")
-				return next(c)
-			}
-		},
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowCredentials: true,
 			AllowOrigins:     cfg.CORS.AllowOrigins,
@@ -216,8 +212,14 @@ func NewEcho(
 			}
 			e.Listener = ln
 			go func() {
-				if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
-					logger.Panic("error during serving HTTP", zap.Error(err))
+				if ocfg.H2c != nil {
+					if err := e.StartH2CServer(addr, ocfg.H2c); err != nil && err != http.ErrServerClosed {
+						logger.Panic("error during serving HTTP/2", zap.Error(err))
+					}
+				} else {
+					if err := e.Start(addr); err != nil && err != http.ErrServerClosed {
+						logger.Panic("error during serving HTTP", zap.Error(err))
+					}
 				}
 			}()
 			return nil
