@@ -24,6 +24,12 @@ func WithLogBody(b bool) LogOption {
 	}
 }
 
+func SkipURL(urls ...string) LogOption {
+	return func(o *options) {
+		o.skippedURLs = append(o.skippedURLs, urls...)
+	}
+}
+
 var defaultSkippedURLs = []string{
 	"/metrics",
 	"/healthz",
@@ -37,4 +43,5 @@ type options struct {
 	filters      []RequestFilter
 	headersToLog []string
 	logBody      bool
+	skippedURLs  []string
 }

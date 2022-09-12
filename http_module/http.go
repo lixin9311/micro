@@ -51,10 +51,11 @@ func BeforeHttp() HttpOptions {
 }
 
 type Config struct {
-	ListenAddr    string      `mapstructure:"listen-addr" validate:"required,ip"`
-	ListenPort    int         `mapstructure:"listen-port" validate:"required,gt=0,lte=65535"`
-	LogAllRequest bool        `mapstructure:"log-all-request"`
-	CORS          CorsSetting `mapstructure:"cors"`
+	ListenAddr     string      `mapstructure:"listen-addr" validate:"required,ip"`
+	ListenPort     int         `mapstructure:"listen-port" validate:"required,gt=0,lte=65535"`
+	LogAllRequest  bool        `mapstructure:"log-all-request"`
+	LogIgnorePaths []string    `mapstructure:"log-ignore-paths"`
+	CORS           CorsSetting `mapstructure:"cors"`
 }
 
 type CorsSetting struct {
@@ -148,6 +149,7 @@ func NewEcho(
 		http_middleware.EchoRequestLogger(
 			logger,
 			http_middleware.WithLogBody(cfg.LogAllRequest),
+			http_middleware.SkipURL(cfg.LogIgnorePaths...),
 		),
 	)
 

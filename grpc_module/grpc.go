@@ -27,9 +27,10 @@ import (
 )
 
 type Config struct {
-	ListenAddr    string `mapstructure:"listen-addr" validate:"required,ip"`
-	ListenPort    int    `mapstructure:"listen-port" validate:"required,gt=0,lte=65535"`
-	LogAllRequest bool   `mapstructure:"log-all-request"`
+	ListenAddr       string   `mapstructure:"listen-addr" validate:"required,ip"`
+	ListenPort       int      `mapstructure:"listen-port" validate:"required,gt=0,lte=65535"`
+	LogAllRequest    bool     `mapstructure:"log-all-request"`
+	LogIgnoreMethods []string `mapstructure:"log-ignore-methods"`
 }
 
 var DefaultConfig = wrappedCfg{
@@ -110,11 +111,15 @@ type optionalParams struct {
 }
 
 func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig, svOpts grpcServerOptionsParams, logger *zap.Logger, ocfg optionalParams) (*grpc.Server, http_module.HttpOptions) {
+	ignoredMethods := map[string]bool{}
+	for _, m := range cfg.LogIgnoreMethods {
+		ignoredMethods[m] = true
+	}
 	ints := []grpc.UnaryServerInterceptor{
 		// insert request id
 		request_id.UnaryServerInterceptor(),
 		grpc_recovery.UnaryServerInterceptor(ocfg.RecoveryOptions...),
-		grpc_zap.UnaryServerInterceptor(logger, cfg.LogAllRequest, func(context.Context, string) bool { return true }),
+		grpc_zap.UnaryServerInterceptor(logger, cfg.LogAllRequest, func(_ context.Context, m string) bool { return ignoredMethods[m] }),
 		grpc_validator.UnaryServerInterceptor(ocfg.ValidatorOptions...),
 	}
 
@@ -178,6 +183,7 @@ func MustDial(addr string, opts ...grpc.DialOption) *grpc.ClientConn {
 func Dial(addr string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
 	newOpts := make([]grpc.DialOption, 0, len(opts)+1)
 	newOpts = append(newOpts,
+		request_id.UnaryServerInterceptor(),
 		grpc.WithStatsHandler(new(ocgrpc.ClientHandler)),
 	)
 	newOpts = append(newOpts, opts...)

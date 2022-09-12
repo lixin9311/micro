@@ -51,6 +51,7 @@ func WrapMiddleware(m echo.MiddlewareFunc, opts ...LogOption) echo.MiddlewareFun
 	for _, opt := range opts {
 		opt(o)
 	}
+	o.filters = append(o.filters, ExcludeURLs(o.skippedURLs...))
 
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
@@ -97,6 +98,7 @@ func EchoRequestLogger(logger *zap.Logger, opts ...LogOption) echo.MiddlewareFun
 	for _, opt := range opts {
 		opt(o)
 	}
+	o.filters = append(o.filters, ExcludeURLs(o.skippedURLs...))
 
 	if o.logBody {
 		return func(next echo.HandlerFunc) echo.HandlerFunc {
