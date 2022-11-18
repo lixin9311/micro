@@ -16,6 +16,7 @@ import (
 	"github.com/segmentio/ksuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"google.golang.org/grpc/metadata"
 )
 
 func init() {
@@ -39,6 +40,15 @@ func EchoRequestID() echo.MiddlewareFunc {
 	return middleware.RequestIDWithConfig(middleware.RequestIDConfig{
 		Generator: func() string {
 			return ksuid.New().String()
+		},
+		RequestIDHandler: func(c echo.Context, rid string) {
+			ctx := c.Request().Context()
+			md, ok := metadata.FromIncomingContext(ctx)
+			if !ok {
+				md = metadata.MD{}
+			}
+			ctx = metadata.NewIncomingContext(ctx, metadata.Join(md, metadata.Pairs("x-request-id", rid)))
+			c.SetRequest(c.Request().Clone(ctx))
 		},
 	})
 }
