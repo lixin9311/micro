@@ -33,7 +33,6 @@ type beforeHttp struct{}
 type optionalParams struct {
 	fx.In
 
-	H2c      *http2.Server       `optional:"true"`
 	TraceCfg trace_module.Config `optional:"true"`
 	Before   []beforeHttp        `group:"before_http"`
 }
@@ -56,6 +55,7 @@ type Config struct {
 	LogAllRequest  bool        `mapstructure:"log-all-request"`
 	LogIgnorePaths []string    `mapstructure:"log-ignore-paths"`
 	CORS           CorsSetting `mapstructure:"cors"`
+	H2c            bool        `mapstructure:"h2c"`
 }
 
 type CorsSetting struct {
@@ -72,6 +72,7 @@ var DefaultConfig = wrappedCfg{
 			AllowOrigins: []string{"*"},
 			AllowHeaders: []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "ResponseType"},
 		},
+		H2c: false,
 	},
 }
 
@@ -214,8 +215,8 @@ func NewEcho(
 			}
 			e.Listener = ln
 			go func() {
-				if ocfg.H2c != nil {
-					if err := e.StartH2CServer(addr, ocfg.H2c); err != nil && err != http.ErrServerClosed {
+				if cfg.H2c {
+					if err := e.StartH2CServer(addr, &http2.Server{}); err != nil && err != http.ErrServerClosed {
 						logger.Panic("error during serving HTTP/2", zap.Error(err))
 					}
 				} else {
