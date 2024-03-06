@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -18,8 +17,7 @@ import (
 	"github.com/lixin9311/micro/trace_module"
 	"github.com/lixin9311/micro/utils"
 	"github.com/spf13/viper"
-	"go.opencensus.io/plugin/ocgrpc"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -121,29 +119,29 @@ func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig
 		grpc_recovery.UnaryServerInterceptor(ocfg.RecoveryOptions...),
 		grpc_zap.UnaryServerInterceptor(logger, cfg.LogAllRequest, func(_ context.Context, m string) bool { return ignoredMethods[m] }),
 		grpc_validator.UnaryServerInterceptor(ocfg.ValidatorOptions...),
+		grpc_prometheus.UnaryServerInterceptor,
 	}
 
 	options := []grpc.ServerOption{
-
 		grpc.ChainUnaryInterceptor(ints...),
 	}
+
 	if ocfg.TraceCfg.Fraction > 0 && ocfg.TraceCfg.Driver != "none" && ocfg.TraceCfg.Driver != "" {
-		options = append(options, grpc.StatsHandler(&ocgrpc.ServerHandler{
-			StartOptions: trace.StartOptions{
-				Sampler:  trace.ProbabilitySampler(ocfg.TraceCfg.Fraction),
-				SpanKind: trace.SpanKindServer,
-			}}),
-		)
+		options = append(options, grpc.StatsHandler(otelgrpc.NewServerHandler()))
 	}
 	options = append(options, svOpts.Options...)
 	srv := grpc.NewServer(
 		options...,
 	)
-	reflection.Register(srv)
-	grpc_prometheus.Register(srv)
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) (err error) {
+			if len(srv.GetServiceInfo()) == 0 { // disable server if no service is registered
+				return nil
+			}
+			reflection.Register(srv)
+			grpc_prometheus.Register(srv)
+
 			var listen net.Listener
 			addr := fmt.Sprintf("%s:%d", cfg.ListenAddr, cfg.ListenPort)
 			logger.Info("Starting GRPC server on " + addr)
@@ -156,16 +154,19 @@ func NewGRPCServer(lc fx.Lifecycle, cfg Config, svcCfg svc_module.OptionalConfig
 					logger.Panic("error during serving GRPC", zap.Error(err))
 				}
 			}()
-			time.Sleep(time.Millisecond * 100)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
+			if len(srv.GetServiceInfo()) == 0 {
+				return nil
+			}
 			logger.Info("Stopping GRPC server")
 			srv.GracefulStop()
 			return nil
 		},
 	})
 
+	// init grpc before http module
 	return srv, http_module.BeforeHttp()
 }
 
@@ -183,8 +184,11 @@ func MustDial(addr string, opts ...grpc.DialOption) *grpc.ClientConn {
 func Dial(addr string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
 	newOpts := make([]grpc.DialOption, 0, len(opts)+1)
 	newOpts = append(newOpts,
-		request_id.UnaryServerInterceptor(),
-		grpc.WithStatsHandler(new(ocgrpc.ClientHandler)),
+		grpc.WithChainUnaryInterceptor(
+			request_id.UnaryClientInterceptor(),
+			grpc_prometheus.UnaryClientInterceptor,
+		),
+		grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 	)
 	newOpts = append(newOpts, opts...)
 	return grpc.Dial(

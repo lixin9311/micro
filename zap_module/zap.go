@@ -91,9 +91,7 @@ func NewLogger(lvl zapcore.Level, driver string, opts ...zapx.Option) (logger *z
 			zap.AddCallerSkip(4),
 		))
 	} else if driver == "development" {
-		zapcfg := zap.NewDevelopmentConfig()
-		zapcfg.Level = zap.NewAtomicLevelAt(lvl)
-		logger, err = zapcfg.Build()
+		logger, err = zap.NewDevelopment(zap.IncreaseLevel(lvl))
 		grpc_zap.ReplaceGrpcLoggerV2(zap.NewNop())
 		// grpc_zap.ReplaceGrpcLoggerV2(logger.Named("grpclog").WithOptions(
 		// 	zap.AddCallerSkip(4),

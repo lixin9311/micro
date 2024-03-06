@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -19,10 +18,9 @@ import (
 	"github.com/lixin9311/micro/trace_module"
 	"github.com/lixin9311/micro/utils"
 	"github.com/lixin9311/micro/version"
+	"github.com/lixin9311/zapx"
 	"github.com/spf13/viper"
-	"go.opencensus.io/exporter/stackdriver/propagation"
-	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/trace"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/net/http2"
@@ -141,33 +139,55 @@ func NewEcho(
 	}
 
 	e.Use(
+		middleware.RecoverWithConfig(middleware.RecoverConfig{
+			LogErrorFunc: func(c echo.Context, err error, stack []byte) error {
+				logger.Error("recover from panic",
+					zapx.Request(zapx.HTTPRequestEntry{
+						Request: c.Request(),
+						Status:  500,
+					}),
+					zap.String("path", c.Path()),
+					zap.Error(err),
+					zap.String("stack", string(stack)),
+				)
+				return nil
+			},
+		}),
+		http_middleware.EchoRequestID(),
 		middleware.CORSWithConfig(middleware.CORSConfig{
 			AllowCredentials: true,
 			AllowOrigins:     cfg.CORS.AllowOrigins,
 			AllowHeaders:     cfg.CORS.AllowHeaders,
 		}),
-		http_middleware.EchoRequestID(),
-		http_middleware.EchoRequestLogger(
-			logger,
-			http_middleware.WithLogBody(cfg.LogAllRequest),
-			http_middleware.SkipURL(cfg.LogIgnorePaths...),
-		),
 	)
 
-	if ocfg.TraceCfg.Driver != "none" {
+	if ocfg.TraceCfg.Fraction > 0 && ocfg.TraceCfg.Driver != "none" {
+		// TODO: here
+		skippedUrl := map[string]bool{}
+		for _, p := range cfg.LogIgnorePaths {
+			skippedUrl[p] = true
+		}
+		skipper := otelecho.WithSkipper(
+			func(c echo.Context) bool {
+				return skippedUrl[c.Path()]
+			})
+		e.Use(otelecho.Middleware(service, skipper))
+	}
+
+	if cfg.H2c {
 		e.Use(
-			http_middleware.WrapMiddleware(
-				echo.WrapMiddleware(func(h http.Handler) http.Handler {
-					return &ochttp.Handler{
-						Propagation: &propagation.HTTPFormat{},
-						Handler:     h,
-						StartOptions: trace.StartOptions{
-							Sampler:  trace.ProbabilitySampler(ocfg.TraceCfg.Fraction),
-							SpanKind: trace.SpanKindServer,
-						},
-						IsPublicEndpoint: os.Getenv("K_SERVICE") != "",
-					}
-				}),
+			http_middleware.EchoRequestLogger(
+				logger,
+				http_middleware.WithLogBody(false), // do not use log body for h2c
+				http_middleware.SkipURL(cfg.LogIgnorePaths...),
+			),
+		)
+	} else {
+		e.Use(
+			http_middleware.EchoRequestLogger(
+				logger,
+				http_middleware.WithLogBody(cfg.LogAllRequest),
+				http_middleware.SkipURL(cfg.LogIgnorePaths...),
 			),
 		)
 	}

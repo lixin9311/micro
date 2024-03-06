@@ -3,7 +3,7 @@ package http_middleware
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"runtime/debug"
 	"strings"
@@ -80,9 +80,9 @@ func recoverFunc(l *zap.Logger, c echo.Context) {
 	ctx := c.Request().Context()
 	reqBody := []byte{}
 	if c.Request().Body != nil { // Read
-		reqBody, _ = ioutil.ReadAll(c.Request().Body)
+		reqBody, _ = io.ReadAll(c.Request().Body)
 	}
-	c.Request().Body = ioutil.NopCloser(bytes.NewBuffer(reqBody)) // Reset
+	c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
 	if len(reqBody) > 1024 {
 		reqBody = reqBody[:1024]
 	}
@@ -123,9 +123,9 @@ func EchoRequestLogger(logger *zap.Logger, opts ...LogOption) echo.MiddlewareFun
 				// Request
 				reqBody := []byte{}
 				if c.Request().Body != nil { // Read
-					reqBody, _ = ioutil.ReadAll(c.Request().Body)
+					reqBody, _ = io.ReadAll(c.Request().Body)
 				}
-				c.Request().Body = ioutil.NopCloser(bytes.NewBuffer(reqBody)) // Reset
+				c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
 
 				// Response
 				// resBody := new(bytes.Buffer)

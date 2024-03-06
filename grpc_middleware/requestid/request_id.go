@@ -28,6 +28,15 @@ func ExtractRequestID(ctx context.Context) string {
 	return ""
 }
 
+func InjectRequestID(ctx context.Context, id string) context.Context {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		md = metadata.MD{}
+	}
+	md[RequestIDMetadataKey] = []string{id}
+	return metadata.NewIncomingContext(ctx, metadata.Join(md, metadata.Pairs(RequestIDMetadataKey, id)))
+}
+
 func generateRequestID() string {
 	if id, err := ksuid.NewRandom(); err != nil {
 		grpclog.Errorf("RequestIDInterceptor: failed to generate random request id, %v", err)
