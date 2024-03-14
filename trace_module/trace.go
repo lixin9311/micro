@@ -28,6 +28,7 @@ func Module() fx.Option {
 		fx.Provide(
 			ReadConfig,
 			NewTraceExporter,
+			NewTraceProvider,
 		),
 		fx.Invoke(
 			RegisterTrace,
