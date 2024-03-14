@@ -6,8 +6,6 @@ import (
 
 	cloudtrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	gcppropagator "github.com/GoogleCloudPlatform/opentelemetry-operations-go/propagator"
-	"github.com/lixin9311/micro/cfg_module"
-	"github.com/lixin9311/micro/svc_module"
 	"github.com/spf13/viper"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
@@ -18,6 +16,8 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
+	"pkg.lucas.icu/micro/cfg_module"
+	"pkg.lucas.icu/micro/svc_module"
 )
 
 // Module requires ctx_module, log_module, svc_module if configured with stackdriver exporter

@@ -11,16 +11,16 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
-	"github.com/lixin9311/micro/cfg_module"
-	"github.com/lixin9311/micro/cmd_module"
-	"github.com/lixin9311/micro/ctx_module"
-	example "github.com/lixin9311/micro/example/proto"
-	"github.com/lixin9311/micro/gateway_module"
-	"github.com/lixin9311/micro/grpc_module"
-	"github.com/lixin9311/micro/http_module"
-	"github.com/lixin9311/micro/svc_module"
-	"github.com/lixin9311/micro/trace_module"
-	"github.com/lixin9311/micro/zap_module"
+	"pkg.lucas.icu/micro/cfg_module"
+	"pkg.lucas.icu/micro/cmd_module"
+	"pkg.lucas.icu/micro/ctx_module"
+	example "pkg.lucas.icu/micro/example/proto"
+	"pkg.lucas.icu/micro/gateway_module"
+	"pkg.lucas.icu/micro/grpc_module"
+	"pkg.lucas.icu/micro/http_module"
+	"pkg.lucas.icu/micro/svc_module"
+	"pkg.lucas.icu/micro/trace_module"
+	"pkg.lucas.icu/micro/zap_module"
 )
 
 // Define a viper compatible config struct

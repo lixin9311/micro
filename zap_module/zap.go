@@ -7,14 +7,14 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/lixin9311/micro/cfg_module"
-	"github.com/lixin9311/micro/svc_module"
-	"github.com/lixin9311/micro/version"
 	"github.com/lixin9311/zapx"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"pkg.lucas.icu/micro/cfg_module"
+	"pkg.lucas.icu/micro/svc_module"
+	"pkg.lucas.icu/micro/version"
 )
 
 var DefaultConfig = wrappedCfg{

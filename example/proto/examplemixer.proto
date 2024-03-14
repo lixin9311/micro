@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package proto;
-option go_package = "github.com/lixin9311/micro/example/proto";
+option go_package = "pkg.lucas.icu/micro/example/proto";
 
 import "validate/validate.proto";
 import "google/api/annotations.proto";

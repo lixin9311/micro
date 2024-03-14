@@ -4,10 +4,10 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/labstack/echo/v4"
-	"github.com/lixin9311/micro/cfg_module"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
 	"google.golang.org/protobuf/encoding/protojson"
+	"pkg.lucas.icu/micro/cfg_module"
 )
 
 type Config struct {

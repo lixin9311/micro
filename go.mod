@@ -1,4 +1,4 @@
-module github.com/lixin9311/micro
+module pkg.lucas.icu/micro
 
 go 1.20
 

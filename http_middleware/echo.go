@@ -11,12 +11,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/lixin9311/micro/version"
 	"github.com/lixin9311/zapx"
 	"github.com/segmentio/ksuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc/metadata"
+	"pkg.lucas.icu/micro/version"
 )
 
 func init() {

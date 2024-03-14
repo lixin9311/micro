@@ -1,9 +1,9 @@
 package cfg_module
 
 import (
-	"github.com/lixin9311/micro/viperutil"
 	"github.com/spf13/viper"
 	"go.uber.org/fx"
+	"pkg.lucas.icu/micro/viperutil"
 )
 
 var Viper = viper.New()
