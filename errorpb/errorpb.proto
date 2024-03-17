@@ -1,0 +1,17 @@
+syntax = "proto3";
+package errorpb;
+
+option go_package = "pkg.lucas.icu/errorpb";
+
+message Error {
+  // grpc code.
+  int32 code = 1;
+  // Error ID.
+  string id = 2;
+  // domain that generated the error.
+  string domain = 3;
+  // Human-readable message.
+  string message = 4;
+  // Other metadata.
+  map<string, string> metadata = 5;
+}
